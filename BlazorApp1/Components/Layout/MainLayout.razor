@@ -1,0 +1,80 @@
+﻿@inherits LayoutComponentBase
+@implements IDisposable
+@inject NavigationManager NavManager
+
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_customTheme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Style="background: linear-gradient(180deg, #0F0F0F 0%, #1A1A1A 100%); min-height: 100vh;">
+    
+    <MudMainContent Style="padding-top: 20px; padding-bottom: 150px;">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+    <div style="position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 2000; width: auto;">
+        <MudPaper Elevation="8" 
+                  Class="d-flex align-center gap-2 pa-2 px-4"
+                  Style="background-color: #1E1E1E; border: 1px solid #333; border-radius: 50px;">
+            
+            <MudButton Href="/" Class="zoom-effect" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.Home" Color="@(IsHome ? Color.Primary : Color.Inherit)" Style="@GetButtonStyle(IsHome)">Home</MudButton>
+            <div style="width: 1px; height: 24px; background-color: #333;"></div>
+            <MudButton Href="market" Class="zoom-effect" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.ShowChart" Color="@(IsMarket ? Color.Primary : Color.Inherit)" Style="@GetButtonStyle(IsMarket)">Market</MudButton>
+            <div style="width: 1px; height: 24px; background-color: #333;"></div>
+            <MudButton Href="converter" Class="zoom-effect" Variant="Variant.Text" StartIcon="@Icons.Material.Filled.CurrencyExchange" Color="@(IsConverter ? Color.Primary : Color.Inherit)" Style="@GetButtonStyle(IsConverter)">Converter</MudButton>
+
+        </MudPaper>
+    </div>
+
+</MudLayout>
+
+@code {
+    private bool _isDarkMode = true;
+    private string _currentUrl = "";
+
+    private bool IsHome => _currentUrl == NavManager.BaseUri;
+    private bool IsMarket => _currentUrl.Contains("market");
+    private bool IsConverter => _currentUrl.Contains("converter");
+
+    protected override void OnInitialized()
+    {
+        _currentUrl = NavManager.Uri;
+        NavManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _currentUrl = e.Location;
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private string GetButtonStyle(bool isActive)
+    {
+        return isActive 
+            ? "border-radius: 20px; font-weight: 700;" 
+            : "border-radius: 20px; font-weight: 500; color: #888;";
+    }
+
+    private MudTheme _customTheme = new MudTheme()
+    {
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#FF9800",       
+            Secondary = "#FFB74D",     
+            Background = "#121212",    
+            Surface = "#1E1E1E",       
+            AppbarBackground = "#151515",
+            TextPrimary = "#E0E0E0",
+            TextSecondary = "#B0B0B0",
+            ActionDefault = "#FF9800"
+        }
+    };
+}

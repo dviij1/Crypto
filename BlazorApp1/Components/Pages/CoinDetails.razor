@@ -1,0 +1,97 @@
+﻿@page "/coin/{Id}"
+@using BlazorApp1.Data.Models
+@using BlazorApp1.Data.Services
+@inject CoinGeckoService CoinService
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<PageTitle>Coin Details</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    @if (coin == null)
+    {
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Class="align-self-center" />
+    }
+    else
+    {
+        <MudPaper Elevation="4"
+                  Style="border-radius: 20px; background: #1E1E1E; border: 1px solid #333;"
+                  Class="pa-4 mb-6 d-flex align-center">
+            
+            <MudIconButton Icon="@Icons.Material.Filled.ArrowBack"
+                           Color="Color.Inherit"
+                           Edge="Edge.Start"
+                           OnClick="@(() => NavManager.NavigateTo("/"))"
+                           Class="mr-6"
+                           Style="background: rgba(255,255,255,0.05); border-radius: 15px;" />
+
+            <MudStack Row="true" AlignItems="AlignItems.Center" Style="flex-grow: 1;">
+                <MudImage Src="@coin.Image" Height="64" Width="64" Class="mr-6"/>
+                <div>
+                    <MudText Typo="Typo.h4" Style="font-weight: 700;">
+                        @coin.Name <span style="opacity: 0.6; font-size: 0.8em;">(@coin.Symbol?.ToUpper())</span>
+                    </MudText>
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="mt-2" Style="font-weight: 600;">
+                        $@coin.CurrentPrice?.ToString("N2")
+                    </MudText>
+                </div>
+            </MudStack>
+
+            <MudChip T="string"
+                     Color="@(coin.PriceChange24h >= 0 ? Color.Success : Color.Error)"
+                     Variant="Variant.Filled"
+                     Size="Size.Large"
+                     Class="ml-4 pa-3"
+                     Style="font-weight: 700; border-radius: 15px;">
+                24h: @(coin.PriceChange24h >= 0 ? "+" : "")@coin.PriceChange24h?.ToString("N2")%
+            </MudChip>
+        </MudPaper>
+
+        <MudPaper Elevation="4" Class="pa-6" Style="border-radius: 20px; background: #1E1E1E; border: 1px solid #333;">
+            <MudText Typo="Typo.h6" GutterBottom="true" Style="opacity: 0.8;">Price History (30 Days)</MudText>
+            
+            <MudChart ChartType="ChartType.Line"
+                      ChartSeries="@Series"
+                      XAxisLabels="@XAxisLabels"
+                      Width="100%" Height="450px"
+                      ChartOptions="@chartOptions" />
+        </MudPaper>
+    }
+</MudContainer>
+
+@code {
+    [Parameter] public string Id { get; set; } = "";
+    private CoinMarket? coin;
+    
+    // Вказуємо тип <double>, щоб виправити помилку з вашого скріншоту
+    public List<ChartSeries<double>> Series = new();
+    public string[] XAxisLabels = { };
+
+    // Тільки колір. Ніяких зайвих налаштувань, щоб не було помилок.
+    private MudBlazor.ChartOptions chartOptions = new MudBlazor.ChartOptions
+    {
+        ChartPalette = new[] { "#00E676" } 
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        coin = await CoinService.GetCoinByIdAsync(Id);
+        if (coin != null)
+        {
+            var history = await CoinService.GetCoinHistoryAsync(Id);
+            
+            // 👇 ГОЛОВНИЙ ФІКС: Округлюємо дані ТУТ 👇
+            // Ми беремо кожне число і обрізаємо зайві знаки (Math.Round(x, 2))
+            // Тепер графік фізично не зможе показати довгі цифри.
+            var roundedHistory = history.Select(x => Math.Round(x, 2)).ToArray();
+
+            Series.Add(new ChartSeries<double>
+            {
+                Name = $"Price",
+                Data = roundedHistory
+            });
+
+            XAxisLabels = Enumerable.Range(1, 30).Select(i => $"{i}").ToArray();
+        }
+    }
+}

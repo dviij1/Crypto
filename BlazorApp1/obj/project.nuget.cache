@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "35VAJqfo5tg=",
+  "success": true,
+  "projectFilePath": "/Users/dviij/RiderProjects/BlazorApp1/BlazorApp1/BlazorApp1.csproj",
+  "expectedPackageFiles": [
+    "/Users/dviij/.nuget/packages/microsoft.aspnetcore.app.internal.assets/10.0.0/microsoft.aspnetcore.app.internal.assets.10.0.0.nupkg.sha512",
+    "/Users/dviij/.nuget/packages/mudblazor/9.0.0-preview.1/mudblazor.9.0.0-preview.1.nupkg.sha512"
+  ],
+  "logs": []
+}

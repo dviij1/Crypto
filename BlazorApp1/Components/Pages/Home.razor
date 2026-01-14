@@ -1,0 +1,112 @@
+﻿@page "/market"
+@using BlazorApp1.Data.Models
+@using BlazorApp1.Data.Services
+@inject CoinGeckoService CoinService
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<PageTitle>Market</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8">
+    <MudText Typo="Typo.h3" GutterBottom="true" Style="font-weight: 700;">Crypto Market</MudText>
+
+    @if (!string.IsNullOrEmpty(errorMessage))
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Class="my-4">
+            Error: @errorMessage
+        </MudAlert>
+    }
+
+    @if (coins == null)
+    {
+        @if (string.IsNullOrEmpty(errorMessage))
+        {
+            <MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+            <MudText>Loading market data...</MudText>
+        }
+    }
+    else
+    {
+        <MudTable Items="@GetFilteredCoins()" 
+                  Hover="true" 
+                  SortLabel="Sort By" 
+                  T="CoinMarket" 
+                  OnRowClick="RowClickEvent"
+                  Elevation="0" 
+                  Style="background: transparent;">
+            
+            <ToolBarContent>
+                <MudText Typo="Typo.h6">Top Coins</MudText>
+                <MudSpacer />
+                <MudTextField @bind-Value="searchString" Placeholder="Search..." Adornment="Adornment.Start" 
+                              AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh Style="background: transparent; color: #B0B0B0;">#</MudTh>
+                <MudTh Style="background: transparent; color: #B0B0B0;">Coin</MudTh>
+                <MudTh Style="background: transparent; color: #B0B0B0;">Price</MudTh>
+                <MudTh Style="background: transparent; color: #B0B0B0;">24h %</MudTh>
+                <MudTh Style="background: transparent; color: #B0B0B0;">Market Cap</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="#">@context.MarketCapRank</MudTd>
+                <MudTd DataLabel="Coin">
+                    <div class="d-flex align-center">
+                        @if (!string.IsNullOrEmpty(context.Image))
+                        {
+                            <MudImage Src="@context.Image" Height="25" Width="25" Class="mr-3"/>
+                        }
+                        <MudText Typo="Typo.body1" Style="font-weight: 600;">@context.Name</MudText>
+                        <MudText Typo="Typo.caption" Class="ml-2 text-muted">@context.Symbol?.ToUpper()</MudText>
+                    </div>
+                </MudTd>
+                <MudTd DataLabel="Price">$@context.CurrentPrice?.ToString("N2")</MudTd>
+                <MudTd DataLabel="24h %">
+                    <MudText Color="@(context.PriceChange24h >= 0 ? Color.Success : Color.Error)">
+                        @context.PriceChange24h?.ToString("N2")%
+                    </MudText>
+                </MudTd>
+                <MudTd DataLabel="Market Cap">$@context.MarketCap?.ToString("N0")</MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    }
+</MudContainer>
+
+@code {
+    private List<CoinMarket>? coins;
+    private string searchString = "";
+    private string errorMessage = ""; 
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            coins = await CoinService.GetTopCoinsAsync(100);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.ToString();
+        }
+    }
+
+    private IEnumerable<CoinMarket> GetFilteredCoins()
+    {
+        if (coins == null) return new List<CoinMarket>();
+        
+        var cryptoOnly = coins.Where(c => c.Id != "uah" && c.Id != "usd" && c.Id != "eur");
+
+        if (string.IsNullOrWhiteSpace(searchString))
+            return cryptoOnly;
+
+        return cryptoOnly.Where(c => (c.Name != null && c.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase)) || 
+                                     (c.Symbol != null && c.Symbol.Contains(searchString, StringComparison.OrdinalIgnoreCase)));
+    }
+
+    private void RowClickEvent(TableRowClickEventArgs<CoinMarket> args)
+    {
+        NavManager.NavigateTo($"/coin/{args.Item.Id}");
+    }
+}

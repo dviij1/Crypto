@@ -1,0 +1,90 @@
+﻿@page "/"
+@inject NavigationManager NavManager
+
+<PageTitle>Welcome to CryptoTracker</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-8 mb-16">
+    <MudGrid Class="align-center">
+        <MudItem xs="12" md="6">
+            <MudText Typo="Typo.h1" Style="font-weight: 800; line-height: 1.2; color: #fff; user-select: none;">
+                Track Crypto <br />
+                <span style="color: #FF9800;">Like a Pro</span>
+            </MudText>
+            
+            <MudText Typo="Typo.h5" Class="mt-4 mb-8" Style="color: #B0B0B0; font-weight: 300; user-select: none;">
+                Real-time data, instant conversions, and advanced analytics. 
+                Everything you need to master the market in one place.
+            </MudText>
+            
+            <MudStack Row="true" Spacing="4">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" 
+                           OnClick="@(() => NavManager.NavigateTo("/market"))"
+                           Style="border-radius: 12px; font-weight: 700; padding: 15px 30px;">
+                    Get Started
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Inherit" Size="Size.Large"
+                           OnClick="@(() => NavManager.NavigateTo("/converter"))"
+                           Style="border-radius: 12px; font-weight: 600; padding: 15px 30px;">
+                    Converter
+                </MudButton>
+            </MudStack>
+        </MudItem>
+
+        <MudItem xs="12" md="6" Class="d-flex justify-center">
+            <MudImage Src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/800px-Bitcoin.svg.png" 
+                      Style="width: 100%; max-width: 400px; filter: drop-shadow(0px 10px 30px rgba(255,152,0,0.3));" />
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="my-16">
+    <MudText Typo="Typo.h3" Align="Align.Center" Class="mb-12" Style="font-weight: 700; user-select: none;">
+        Why Choose <span style="color: #FF9800;">CryptoTracker?</span>
+    </MudText>
+
+    <MudGrid Spacing="4">
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Class="pa-8 d-flex flex-column align-center zoom-effect" 
+                      Style="background: #1E1E1E; border-radius: 20px; border: 1px solid #333; height: 100%;">
+                <MudIcon Icon="@Icons.Material.Filled.Timeline" Style="font-size: 3rem; color: #00E676; margin-bottom: 20px;" />
+                <MudText Typo="Typo.h5" Style="font-weight: 700; margin-bottom: 10px;">Real-Time Data</MudText>
+                <MudText Align="Align.Center" Style="color: #888;">
+                    Get the latest prices updated every second. Never miss a market movement.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Class="pa-8 d-flex flex-column align-center zoom-effect" 
+                      Style="background: #1E1E1E; border-radius: 20px; border: 1px solid #333; height: 100%;">
+                <MudIcon Icon="@Icons.Material.Filled.Security" Style="font-size: 3rem; color: #FF9800; margin-bottom: 20px;" />
+                <MudText Typo="Typo.h5" Style="font-weight: 700; margin-bottom: 10px;">Secure & Private</MudText>
+                <MudText Align="Align.Center" Style="color: #888;">
+                    We don't store your personal data. Your tracking history is local and secure.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Class="pa-8 d-flex flex-column align-center zoom-effect" 
+                      Style="background: #1E1E1E; border-radius: 20px; border: 1px solid #333; height: 100%;">
+                <MudIcon Icon="@Icons.Material.Filled.Speed" Style="font-size: 3rem; color: #29B6F6; margin-bottom: 20px;" />
+                <MudText Typo="Typo.h5" Style="font-weight: 700; margin-bottom: 10px;">Lightning Fast</MudText>
+                <MudText Align="Align.Center" Style="color: #888;">
+                    Built on Blazor technology for maximum performance. Zero loading times.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+    </MudGrid>
+</MudContainer>
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="mt-16 mb-8">
+    <MudDivider Class="mb-8" />
+    <MudText Align="Align.Center" Style="color: #666; font-size: 0.8em;">
+        © 2024 CryptoTracker. All rights reserved.
+    </MudText>
+</MudContainer>
+
+@code {
+    // Logic is handled by layout
+}

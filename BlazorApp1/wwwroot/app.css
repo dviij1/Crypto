@@ -1,0 +1,31 @@
+html, body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /* 👇 ВСТАНОВЛЮЄМО КАРТИНКУ ЯК ФОН 👇 */
+    background-image: url('https://i.pinimg.com/736x/8b/47/e5/8b47e574fab0b20c4ac83120b72d3278.jpg');
+
+    /* Розтягуємо на весь екран */
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Фон не рухається при скролі */
+
+    background-color: #121212; /* Запасний колір */
+    min-height: 100vh;
+    margin: 0;
+}
+
+/* 👇 ДУЖЕ ВАЖЛИВО: Робимо головний контейнер MudBlazor прозорим, 
+   інакше він перекриє картинку чорним кольором */
+.mud-layout {
+    background-color: transparent !important;
+}
+
+/* Стиль для анімації кнопок (Zoom) */
+.zoom-effect {
+    transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.zoom-effect:hover {
+    transform: scale(1.15);
+    background-color: rgba(255,255,255,0.1) !important;
+}

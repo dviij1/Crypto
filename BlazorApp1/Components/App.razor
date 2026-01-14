@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="/" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="BlazorApp1.styles.css" />
+    <HeadOutlet @rendermode="InteractiveServer" />
+    
+    <style>
+        /* 👇 ВИПРАВЛЕННЯ ТУТ 👇 */
+        
+        /* 1. Фон ставимо ТІЛЬКИ для сторінки (body) */
+        body {
+            background-color: #121212;
+            font-family: 'Montserrat', sans-serif !important;
+        }
+
+        /* 2. Для всіх інших елементів міняємо ТІЛЬКИ шрифт. 
+              Фон не чіпаємо, щоб він був прозорим/стандартним. */
+        .mud-typography, .mud-button-root, .mud-input-control, .mud-table-root {
+            font-family: 'Montserrat', sans-serif !important;
+        }
+        
+        /* Анімація кнопок */
+        .zoom-effect {
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .zoom-effect:hover {
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+
+<body>
+<Routes @rendermode="InteractiveServer" />
+<script src="_framework/blazor.web.js"></script>
+<script src="_content/MudBlazor/MudBlazor.min.js"></script>
+</body>
+
+</html>

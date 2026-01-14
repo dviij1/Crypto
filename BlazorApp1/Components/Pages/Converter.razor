@@ -1,0 +1,143 @@
+﻿@page "/converter"
+@using BlazorApp1.Data.Models
+@using BlazorApp1.Data.Services
+@inject CoinGeckoService CoinService
+@inject NavigationManager NavManager
+@rendermode InteractiveServer
+
+<PageTitle>Converter</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+    <MudText Typo="Typo.h4" GutterBottom="true" Align="Align.Center" Style="font-weight: 700;">Crypto Converter</MudText>
+
+    <MudPaper Elevation="4" Class="pa-8 mt-4" Style="border-radius: 20px; background: #1E1E1E; border: 1px solid #333;">
+        
+        <MudGrid Class="align-center justify-center">
+            
+            <MudItem xs="12" sm="5">
+                <MudAutocomplete T="CoinMarket" 
+                                 Label="From" 
+                                 @bind-Value="fromCoin" 
+                                 SearchFunc="@Search"
+                                 ToStringFunc="@(e => e == null ? null : $"{e.Symbol.ToUpper()} - {e.Name}")"
+                                 Variant="Variant.Outlined" 
+                                 AdornmentIcon="@Icons.Material.Filled.KeyboardArrowDown" 
+                                 AdornmentColor="Color.Primary"
+                                 AnchorOrigin="Origin.BottomCenter"
+                                 TransformOrigin="Origin.TopCenter"
+                                 Clearable="true"
+                                 OnClearButtonClick="@(() => fromCoin = null)">
+                    <ItemTemplate Context="e">
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudImage Src="@e.Image" Height="25" Width="25" Class="mr-2"/>
+                            <MudText><b>@e.Symbol?.ToUpper()</b> - @e.Name</MudText>
+                        </MudStack>
+                    </ItemTemplate>
+                </MudAutocomplete>
+
+                <MudTextField @bind-Value="amount" 
+                              Label="Amount" 
+                              Variant="Variant.Outlined" 
+                              Class="mt-4"
+                              Adornment="Adornment.End" 
+                              AdornmentText="@(fromCoin?.Symbol?.ToUpper())" 
+                              Immediate="true"/>
+            </MudItem>
+
+            <MudItem xs="12" sm="2" Class="d-flex justify-center my-4">
+                <MudIconButton Icon="@Icons.Material.Filled.SwapHoriz" Color="Color.Primary" Size="Size.Large" OnClick="SwapCurrencies"/>
+            </MudItem>
+
+            <MudItem xs="12" sm="5">
+                <MudAutocomplete T="CoinMarket" 
+                                 Label="To" 
+                                 @bind-Value="toCoin" 
+                                 SearchFunc="@Search"
+                                 ToStringFunc="@(e => e == null ? null : $"{e.Symbol.ToUpper()} - {e.Name}")"
+                                 Variant="Variant.Outlined" 
+                                 AdornmentIcon="@Icons.Material.Filled.KeyboardArrowDown"
+                                 AdornmentColor="Color.Primary"
+                                 AnchorOrigin="Origin.BottomCenter"
+                                 TransformOrigin="Origin.TopCenter"
+                                 Clearable="true"
+                                 OnClearButtonClick="@(() => toCoin = null)">
+                    <ItemTemplate Context="e">
+                        <MudStack Row="true" AlignItems="AlignItems.Center">
+                            <MudImage Src="@e.Image" Height="25" Width="25" Class="mr-2"/>
+                            <MudText><b>@e.Symbol?.ToUpper()</b> - @e.Name</MudText>
+                        </MudStack>
+                    </ItemTemplate>
+                </MudAutocomplete>
+
+                <MudTextField Value="@result" 
+                              Label="Result" 
+                              ReadOnly="true" 
+                              Variant="Variant.Filled" 
+                              Class="mt-4"
+                              Adornment="Adornment.End"
+                              AdornmentText="@(toCoin?.Symbol?.ToUpper())" />
+            </MudItem>
+
+        </MudGrid>
+
+        @if (fromCoin != null && toCoin != null && toCoin.CurrentPrice > 0)
+        {
+            <MudPaper Elevation="0" Class="mt-6 pa-4 d-flex flex-column align-center justify-center" 
+                      Style="background: rgba(0, 230, 118, 0.15); border: 1px solid rgba(0, 230, 118, 0.4); border-radius: 15px;">
+                
+                <MudStack Row="true" AlignItems="AlignItems.Center">
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Style="color: #00E676; margin-right: 8px;" />
+                    
+                    <MudText Typo="Typo.h5" Style="font-weight: 700; color: #00E676; background: transparent;">
+                        @amount @fromCoin.Symbol?.ToUpper() = @result.ToString("N4") @toCoin.Symbol?.ToUpper()
+                    </MudText>
+                </MudStack>
+
+                @if(amount != 1)
+                {
+                    <MudText Typo="Typo.caption" Style="color: rgba(0, 230, 118, 0.8); margin-top: 4px; background: transparent;">
+                        Rate: 1 @fromCoin.Symbol?.ToUpper() = @((fromCoin.CurrentPrice / toCoin.CurrentPrice)?.ToString("N4")) @toCoin.Symbol?.ToUpper()
+                    </MudText>
+                }
+            </MudPaper>
+        }
+
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<CoinMarket>? coins;
+    private CoinMarket? fromCoin;
+    private CoinMarket? toCoin;
+    private double amount = 1;
+    
+    private double result => Calculate();
+
+    protected override async Task OnInitializedAsync()
+    {
+        coins = await CoinService.GetTopCoinsAsync(50);
+        
+        fromCoin = coins.FirstOrDefault(c => c.Id == "usd"); 
+        toCoin = coins.FirstOrDefault(c => c.Id == "uah"); 
+    }
+
+    private double Calculate()
+    {
+        if (fromCoin == null || toCoin == null || toCoin.CurrentPrice == 0) return 0;
+        return (amount * (double)fromCoin.CurrentPrice) / (double)toCoin.CurrentPrice;
+    }
+
+    private void SwapCurrencies()
+    {
+        (fromCoin, toCoin) = (toCoin, fromCoin);
+    }
+
+    private async Task<IEnumerable<CoinMarket>> Search(string value, CancellationToken token)
+    {
+        if (string.IsNullOrEmpty(value))
+            return coins;
+
+        return coins.Where(x => x.Name.Contains(value, StringComparison.InvariantCultureIgnoreCase) || 
+                                x.Symbol.Contains(value, StringComparison.InvariantCultureIgnoreCase));
+    }
+}
